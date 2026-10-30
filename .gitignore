@@ -1,1 +1,5 @@
 /venv
+
+# keep results folder structure, ignore generated images
+**/results/*/*
+!**/results/*/.gitkeep
