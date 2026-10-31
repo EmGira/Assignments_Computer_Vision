@@ -2,4 +2,5 @@
 
 # keep results folder structure, ignore generated images
 **/results/*/*
+!**/results/degraded_images/*
 !**/results/*/.gitkeep
