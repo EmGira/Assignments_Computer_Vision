@@ -1,0 +1,16 @@
+image,method,psnr_db,ssim
+Shadows,degraded (baseline),16.25,0.654
+low_contrast,degraded (baseline),26.82,0.706
+poor_details,degraded (baseline),14.17,0.487
+Shadows,stretch per channel (BGR),21.47,0.642
+low_contrast,stretch per channel (BGR),16.83,0.213
+poor_details,stretch per channel (BGR),25.80,0.538
+Shadows,stretch luminance (LAB),22.58,0.714
+low_contrast,stretch luminance (LAB),20.01,0.299
+poor_details,stretch luminance (LAB),26.83,0.674
+Shadows,hist eq (LAB),17.66,0.513
+low_contrast,hist eq (LAB),11.95,0.072
+poor_details,hist eq (LAB),7.70,0.076
+Shadows,bilateral + hist eq (LAB),17.77,0.730
+low_contrast,bilateral + hist eq (LAB),12.00,0.401
+poor_details,bilateral + hist eq (LAB),6.37,0.071
