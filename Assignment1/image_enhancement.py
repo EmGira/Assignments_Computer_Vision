@@ -22,13 +22,21 @@ original_imgs = [cv2.resize(img, dsize=None, fx=0.1, fy=0.1, interpolation=cv2.I
 a = 0.5
 b = 128 * (1 - a)
 
-noise_sigma = 5                   # std of the gaussian noise, in grey levels 
-rng = np.random.default_rng(10)   # fixed seed
+noise_sigma = 5                   # std of the gaussian noise, in grey levels
+ 
+#fixed seeds
+rng = np.random.default_rng(10)   
+cv2.setRNGSeed(10)
 
 def degrade(img):
+  
   reduced_contrast = cv2.convertScaleAbs(src=img, dst=None, alpha=a, beta=b)
-  noisy = reduced_contrast.astype(np.float64) + rng.normal(0, noise_sigma, size=img.shape)
-  return np.clip(np.rint(noisy), 0, 255).astype(np.uint8)
+  
+  noise = cv2.randn(np.zeros(img.shape), (0), (noise_sigma,) *3)
+  
+  return cv2.add(reduced_contrast, noise, dtype=cv2.CV_8U)
+
+
 
 
 degraded_imgs = [degrade(img) for img in original_imgs]
