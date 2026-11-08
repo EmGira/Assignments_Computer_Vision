@@ -12,7 +12,7 @@ print(imgs_path)
 
 
 imgs = [cv2.imread(img) for img in imgs_path ]
-# INTER_AREA averages each 10x10 block; the default INTER_LINEAR reads only 2x2 pixels 
+
 original_imgs = [cv2.resize(img, dsize=None, fx=0.1, fy=0.1, interpolation=cv2.INTER_AREA) for img in imgs]
 
 
@@ -22,7 +22,7 @@ original_imgs = [cv2.resize(img, dsize=None, fx=0.1, fy=0.1, interpolation=cv2.I
 a = 0.5
 b = 128 * (1 - a)
 
-noise_sigma = 5                   # std of the gaussian noise, in grey levels
+noise_sigma = 5                   # std of the gaussian noise
  
 #fixed seeds
 rng = np.random.default_rng(10)   
