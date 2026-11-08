@@ -1,6 +1,7 @@
 /venv
 
 # keep results folder structure, ignore generated images
+/Assignment1/report
 **/results/*/*
 !**/results/degraded_images/*
 !**/results/*/.gitkeep
