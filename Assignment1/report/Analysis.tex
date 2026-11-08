@@ -16,8 +16,8 @@
 \setlength{\parskip}{6pt}
 \setlist{itemsep=2pt, topsep=2pt}
 
-% image shown full width, never taller than the page
-\newcommand{\img}[1]{%
+
+\newcommand{\img}[1]{
   \begin{center}
     \includegraphics[width=\linewidth,height=0.8\textheight,keepaspectratio]{figures/#1}
   \end{center}}
@@ -91,7 +91,7 @@ Gaussian noise & \texttt{cv2.randn(np.zeros(img.shape), (0), (noise\_sigma,) *3)
 
 \textbf{Resize to 10\%.} At 10\% scale folds and lights are still clearly visible, and execution is much faster. All window sizes below (bilateral filter, SSIM) are chosen with respect to the resized image.
 
-\textbf{Interpolation: \texttt{INTER\_AREA} instead of the default \texttt{INTER\_LINEAR}.} \texttt{INTER\_LINEAR} computes each output pixel from the $2\times2$ nearest input pixels. The OpenCV documentation recommends \texttt{INTER\_AREA} for shrinking, because it averages the whole $10\times10$ block.
+\textbf{Interpolation: \texttt{INTER\_AREA} instead of the default \texttt{INTER\_LINEAR}.} \texttt The OpenCV documentation states that INTER\_AREA may be a preferred method for image decimation, as it gives moire'-free results. 
 
 \textbf{Contrast reduction.}
 \begin{itemize}
@@ -138,7 +138,7 @@ HE amplifies small differences, so a denoiser is applied first to reduce what HE
 
 \begin{itemize}
   \item \textbf{d = 9.}\\
-  Determines the diameter of each pixel neighborhood that is used during filtering. If it is non-positive, it is computed from sigmaSpace: with sigma\_space = 3, d = 0 gives the same $9\times9$ window, so the two settings produce identical results.
+  Determines the diameter of each pixel neighborhood that is used during filtering.
   \item \textbf{sigma\_color = 30.}\\
   A larger value of the parameter means that farther colors within the pixel neighborhood (see sigmaSpace) will be mixed together, resulting in larger areas of semi-equal color.
   The OpenCV documentation places useful values between 10 (little effect) and 150 (cartoon-like).
@@ -201,8 +201,8 @@ bilateral + hist eq (LAB) & 0.728 & 0.401 & 0.070 \\
 %======================================================================
 \section{Numerical improvement vs.\ visual quality}
 
-PSNR and SSIM are full-reference metrics: they measure how close a result is to the original, not how good it looks.
-A higher score therefore does not always mean a better-looking image.
+PSNR and SSIM are full reference metrics: they measure how close a result is to the original, not how good it looks.
+Thus, a higher score does not always mean a better looking image.
 
 \subsection{Shadows, bilateral filter + histogram equalization (LAB)}
 
