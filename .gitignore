@@ -1,5 +1,5 @@
-/venv
-
+venv
+data
 # keep results folder structure, ignore generated images
 /Assignment1/report
 **/results/*/*
