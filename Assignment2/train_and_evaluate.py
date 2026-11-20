@@ -22,10 +22,11 @@ def evaluate(model, loader, device):
         "accuracy": accuracy_score(all_labels, all_preds),
         "macro_f1": f1_score(all_labels, all_preds, average="macro"),
         "confusion_matrix": confusion_matrix(all_labels, all_preds),
+        "predictions": all_preds,
         "classification_report": classification_report(all_labels, all_preds, output_dict=True, zero_division=0)
     }
 
-def train_and_evaluate(model:MobileNetV3, optimizer, criterion, device, train_loader, val_loader, test_loader, num_epochs, freeze_features=False):
+def train_and_evaluate(model:MobileNetV3, optimizer, criterion, device, train_loader, val_loader, test_loader, train_eval_loader, num_epochs, freeze_features=False):
   
     best_f1 = 0.0
     best_epoch = 0
@@ -56,7 +57,7 @@ def train_and_evaluate(model:MobileNetV3, optimizer, criterion, device, train_lo
             running_loss += loss.item()
 
             if (step + 1) % 10 == 0:
-                    print(f"({epoch}) step [{step + 1}/{len(train_loader)}], Loss: {running_loss / 10:.4f}")
+                    print(f"step [{step + 1}/{len(train_loader)}], Loss: {running_loss / 10:.4f}")
                     running_loss = 0.0
             
 
@@ -70,7 +71,6 @@ def train_and_evaluate(model:MobileNetV3, optimizer, criterion, device, train_lo
             best_weights = copy.deepcopy(model.state_dict())
 
 
-
     train_time = time.time() - start_time
     print(f"Training time: {train_time:.1f} s")
 
@@ -79,6 +79,9 @@ def train_and_evaluate(model:MobileNetV3, optimizer, criterion, device, train_lo
     # test
     print(f"Test on best epoch: {best_epoch} (val F1 {best_f1:.4f}) \n")
     model.load_state_dict(best_weights)
+
+    # training F1 of the best model, on the training images WITHOUT augmentation
+    train_f1 = evaluate(model, train_eval_loader, device)["macro_f1"]
 
 
     test_results = evaluate(model, test_loader, device)
@@ -89,6 +92,7 @@ def train_and_evaluate(model:MobileNetV3, optimizer, criterion, device, train_lo
     training_info = {
         "best_epoch": best_epoch,
         "best_val_f1": best_f1,
+        "train_f1": train_f1,
         "train_time_sec": train_time,
     }
     return model, test_results, best_weights, training_info

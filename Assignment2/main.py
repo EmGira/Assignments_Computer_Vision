@@ -31,6 +31,11 @@ def set_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
 
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"  
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.use_deterministic_algorithms(True)
+
 
 
 def count_trainable_params(model: MobileNetV3):
@@ -48,6 +53,7 @@ def save_results(name, test_results, training_info, n_trainable, class_names):
         "test_macro_f1": float(test_results["macro_f1"]),
         "class_names": class_names,
         "confusion_matrix": test_results["confusion_matrix"].tolist(),
+        "test_predictions": [int(p) for p in test_results["predictions"]],
     }
     with open(f"results/{name}.json", "w") as f:
         json.dump(summary, f, indent=2)
@@ -119,11 +125,18 @@ def split_dataset(augmented_dataset, evaluation_dataset, seed):
 def get_split_labels(split: Subset):
     return [split.dataset._labels[i] for i in split.indices]
 
-def get_breeds_per_split(splits: dict, class_names):
+def get_breeds_per_split(splits: dict, class_names, path="results/images_per_breed.csv"):
     counts = {name: Counter(labels) for name, labels in splits.items()}
 
-    for label, breed in enumerate(class_names):
-        print(breed, {name: counts[name][label] for name in splits})
+    os.makedirs("results", exist_ok=True)
+    with open(path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["breed"] + list(splits))
+        for label, breed in enumerate(class_names):
+            row = [counts[name][label] for name in splits]
+            print(breed, row)
+            writer.writerow([breed] + row)
+        writer.writerow(["total"] + [len(labels) for labels in splits.values()])
 
 
 def extract_features(feature_extractor, loader, device):
@@ -153,12 +166,13 @@ def main():
     #find transform associated with the pre trained weights
     weights = models.MobileNet_V3_Small_Weights.DEFAULT
     eval_transform = weights.transforms()
+    #we define a transform to augment our training data
     train_transform = transforms.Compose([
         transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                            std=[0.229, 0.224, 0.225]),
+        transforms.Normalize(mean=weights.transforms().mean,
+                            std=weights.transforms().std),
     ])
     #Load and split dataset
     trainval_augmented_dataset, trainval_evaluation_dataset, test_dataset = load_dataset(eval_transform, train_transform)
@@ -182,6 +196,11 @@ def main():
     val_loader = DataLoader(dataset=val_dataset, batch_size=32, shuffle=False)
     test_loader = DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
 
+    # train images WITHOUT augmentation: used to measure training F1 and as SVM training data
+    # (augmentation has no benefits for a classifier like SVM)
+    train_plain = Subset(trainval_evaluation_dataset, train_dataset.indices)
+    train_plain_loader = DataLoader(train_plain, batch_size=32, shuffle=False)
+
 
 
     # load model with pretrained weights
@@ -194,7 +213,7 @@ def main():
     model = model.to(device)
 
     
-    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=1e-3)
+    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4)
     criterion = nn.CrossEntropyLoss()
 
 
@@ -216,6 +235,7 @@ def main():
         train_loader=train_loader,
         val_loader=val_loader,
         test_loader=test_loader,
+        train_eval_loader=train_plain_loader,
         num_epochs=NUM_EPOCHS
     )
     torch.save(best_weights, "checkpoints/full_finetune_best.pt")
@@ -250,6 +270,7 @@ def main():
         train_loader=train_loader,
         val_loader=val_loader,
         test_loader=test_loader,
+        train_eval_loader=train_plain_loader,
         num_epochs=NUM_EPOCHS,
         freeze_features=True,  # keep BatchNorm statistics of model.features fixed
     )
@@ -261,13 +282,11 @@ def main():
 
     #3. FEATURE EXTRACTION WITH SKLEARN CLASSIFIER
 
+    # load fresh model and get feature extractor
     model = models.mobilenet_v3_small(progress = True, weights = weights)
     feature_extractor = nn.Sequential(*list(model.children())[:-1]).to(device)
     feature_extractor.eval()
 
-    # train images WITHOUT augmentation
-    train_plain = Subset(trainval_evaluation_dataset, train_dataset.indices)
-    train_plain_loader = DataLoader(train_plain, batch_size=32, shuffle=False)
 
 
     start = time.time()
@@ -285,7 +304,7 @@ def main():
 
     for C in [0.0001, 0.001, 0.01, 0.1]:
 
-        svm = LinearSVC(C=C, max_iter=5000)  
+        svm = LinearSVC(C=C, max_iter=5000, random_state=SEED)  
         svm.fit(X_train, y_train)   
 
         val_f1 = f1_score(y_val, svm.predict(X_val), average="macro")  
@@ -306,14 +325,18 @@ def main():
         "accuracy": accuracy_score(y_test, y_pred),
         "macro_f1": f1_score(y_test, y_pred, average="macro"),
         "confusion_matrix": confusion_matrix(y_test, y_pred),
+        "predictions": y_pred,
         "classification_report": classification_report(y_test, y_pred, output_dict=True, zero_division=0),
     }
 
     print(f"TEST RESULTS: \n\tacc {test_results['accuracy']:.4f} \n\ttest F1 {test_results['macro_f1']:.4f}\n\n")
 
+    train_f1 = f1_score(y_train, best_svm.predict(X_train), average="macro")
+
     training_info = {"best_epoch": None,  
                      "best_C": best_C,    
                      "best_val_f1": best_val_f1,
+                     "train_f1": train_f1,
                      "train_time_sec": train_time}
     
     save_results("feature_extraction_svm", test_results, training_info, 0, class_names)

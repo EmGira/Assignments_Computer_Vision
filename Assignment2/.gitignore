@@ -1,3 +1,7 @@
 /results/*
+!**/results/figures/*
+
+/report
 
 __pycache__
+
