@@ -1,7 +1,8 @@
-/results/*
-!**/results/figures/*
+# results (metrics, csv, figures) are committed: the assignment requires them in the repository
+# re-include the figures folder, ignored by the root .gitignore rule **/results/*/*
+!/results/figures/
+!/results/figures/*
 
 /report
 
 __pycache__
-

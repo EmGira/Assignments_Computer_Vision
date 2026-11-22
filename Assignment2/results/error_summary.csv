@@ -1,0 +1,4 @@
+method,errors,cat_dog_errors,cat_dog_share
+classifier_head,547,60,0.11
+feature_extraction_svm,627,92,0.147
+full_finetune,585,64,0.109

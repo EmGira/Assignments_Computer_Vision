@@ -1,7 +1,10 @@
-# Homework 2 – Image Classification with Transfer Learning
+# Assignment 2 – Image Classification with Transfer Learning
 
 Classification of the 37 breeds of the Oxford-IIIT Pet dataset with a pre-trained
-MobileNetV3-Small, comparing three transfer-learning strategies:
+MobileNetV3-Small, comparing three transfer-learning strategies:  
+- Full fine tuning
+- classifier head training
+- feature extraction + SVM
 
 ## Environment
 
@@ -35,6 +38,17 @@ The dataset is not included in the repository. It is downloaded automatically by
 - train / validation: the official `trainval` partition (3680 images), split 80/20 with
   `sklearn.model_selection.train_test_split`, stratified by breed, `random_state=1`.
 
+## SEED
+The seed (1) is set for Python, NumPy, PyTorch (CPU and CUDA), the data
+split and the SVM. Deterministic operations are enabled (torch.use_deterministic_algorithms(True),
+cudnn.deterministic=True, cudnn.benchmark=False): Identical results are only guaranteed with
+the same hardware and library versions, training times vary between runs.
+
+## CHECKPOINTS 
+The selected checkpoints come from: 
+- epoch 9 for full fine tuning
+- epoch 6 for classifier head
+- C = 0.01.
 ## Reproducing the experiments
 
 ```bash

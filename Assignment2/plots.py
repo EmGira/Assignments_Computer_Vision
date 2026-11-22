@@ -150,6 +150,7 @@ def error_analysis(results, test_dataset, n=6):
 
         cross = sum(errors[t, p] for t in range(len(errors)) for p in range(len(errors))
                     if species[t] != species[p])
+        
         summary.append({"method": name, "errors": int(errors.sum()), "cat_dog_errors": int(cross),
                         "cat_dog_share": round(cross / errors.sum(), 3)})
 
@@ -177,10 +178,13 @@ def main():
 
     r = results["full_finetune"]
     plot_confusion_matrix(r["confusion_matrix"], r["class_names"], "full_finetune")
+    
     r = results["classifier_head"]
     plot_confusion_matrix(r["confusion_matrix"], r["class_names"], "classifier_head")
+    
     r = results["feature_extraction_svm"]
     plot_confusion_matrix(r["confusion_matrix"], r["class_names"], "feature_extraction_svm")
+
     
     test_dataset = datasets.OxfordIIITPet(root="./data", split="test", download=True,
                                           target_types=["category", "binary-category"])
@@ -190,6 +194,7 @@ def main():
     error_analysis(results, test_dataset)
 
     plt.show()
+
 
 
 if __name__ == "__main__":

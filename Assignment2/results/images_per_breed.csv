@@ -1,0 +1,39 @@
+breed,train,val,test
+Abyssinian,80,20,98
+American Bulldog,80,20,100
+American Pit Bull Terrier,80,20,100
+Basset Hound,80,20,100
+Beagle,80,20,100
+Bengal,80,20,100
+Birman,80,20,100
+Bombay,77,19,88
+Boxer,80,20,99
+British Shorthair,80,20,100
+Chihuahua,80,20,100
+Egyptian Mau,74,19,97
+English Cocker Spaniel,77,19,100
+English Setter,80,20,100
+German Shorthaired,80,20,100
+Great Pyrenees,80,20,100
+Havanese,80,20,100
+Japanese Chin,80,20,100
+Keeshond,80,20,99
+Leonberger,80,20,100
+Maine Coon,80,20,100
+Miniature Pinscher,80,20,100
+Newfoundland,77,19,100
+Persian,80,20,100
+Pomeranian,80,20,100
+Pug,80,20,100
+Ragdoll,80,20,100
+Russian Blue,80,20,100
+Saint Bernard,80,20,100
+Samoyed,80,20,100
+Scottish Terrier,80,20,99
+Shiba Inu,80,20,100
+Siamese,79,20,100
+Sphynx,80,20,100
+Staffordshire Bull Terrier,80,20,89
+Wheaten Terrier,80,20,100
+Yorkshire Terrier,80,20,100
+total,2944,736,3669

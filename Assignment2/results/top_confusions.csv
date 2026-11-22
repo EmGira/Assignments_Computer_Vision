@@ -1,0 +1,12 @@
+true,predicted,classifier_head,feature_extraction_svm,full_finetune
+American Pit Bull Terrier,Staffordshire Bull Terrier,26,9,25
+Russian Blue,British Shorthair,25,13,9
+Ragdoll,Birman,18,17,15
+Bengal,Maine Coon,17,2,5
+Pomeranian,Samoyed,15,4,9
+American Pit Bull Terrier,American Bulldog,11,15,12
+Staffordshire Bull Terrier,American Pit Bull Terrier,5,13,4
+Siamese,Birman,6,11,6
+Staffordshire Bull Terrier,American Bulldog,9,11,14
+English Setter,English Cocker Spaniel,5,5,15
+Chihuahua,Shiba Inu,1,10,12
